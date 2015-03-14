@@ -1,0 +1,26 @@
+{
+  "name": "react-server-routing-example",
+  "version": "0.0.0",
+  "description": "An example using shared client/server code for routing and data fetching in React with AWS",
+  "main": "server.js",
+  "repository": "mhart/react-server-routing-example",
+  "keywords": [
+    "react",
+    "reactjs",
+    "server",
+    "server-side",
+    "routing",
+    "data"
+  ],
+  "author": "Michael Hart <michael.hart.au@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.1.17",
+    "browserify": "^9.0.3",
+    "literalify": "^0.4.0",
+    "react": "^0.13.0"
+  },
+  "devDependencies": {
+    "dynalite": "^0.8.0"
+  }
+}
