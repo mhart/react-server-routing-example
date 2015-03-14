@@ -15,6 +15,10 @@ components, as well as `routes.js` and `db.js` are shared (using
 This example shows a *very* basic blog post viewer, Grumblr, with the posts
 stored in and fetched from DynamoDB whenever the route changes.
 
+An even simpler example of server-side rendering with React, with no routing or
+data fetching, can be found at
+[react-server-example](https://github.com/mhart/react-server-example).
+
 Example
 -------
 
@@ -41,9 +45,9 @@ Here are the files involved:
 var React = require('react'),
     db = require('./db')
 
-// This is a very basic router, shared between the server and browser, with
-// each route defining the main component to be rendered and a data-fetching
-// function to fetch the data each component will need
+// This is a very basic router, shared between the server (in server.js) and
+// browser (in App.js), with each route defining the main component to be
+// rendered and a data-fetching function to fetch the data each component will need
 
 // A lookup table of all the components we need to route to
 exports.components = {

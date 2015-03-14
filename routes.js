@@ -1,9 +1,9 @@
 var React = require('react'),
     db = require('./db')
 
-// This is a very basic router, shared between the server and browser, with
-// each route defining the main component to be rendered and a data-fetching
-// function to fetch the data each component will need
+// This is a very basic router, shared between the server (in server.js) and
+// browser (in App.js), with each route defining the main component to be
+// rendered and a data-fetching function to fetch the data each component will need
 
 // A lookup table of all the components we need to route to
 exports.components = {
