@@ -1,9 +1,15 @@
 var React = require('react'),
+    db = require('./db'),
     DOM = React.DOM, div = DOM.div, h1 = DOM.h1, ul = DOM.ul, li = DOM.li, a = DOM.a
 
 // This is the component we use for listing the posts on the homepage
 
 module.exports = React.createClass({
+
+  // Each component declares an asynchronous function to fetch its props.data
+  statics: {
+    fetchData: db.getAllPosts
+  },
 
   render: function() {
 

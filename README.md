@@ -9,7 +9,7 @@ search-engine-friendly progressively-enhanced pages.
 Some call this isomorphic but I'd prefer to just call it "shared", because
 really that's all it is – sharing as much browser and server code as possible
 and allowing single-page apps to also render on the server. All React
-components, as well as `routes.js` and `db.js` are shared (using
+components, as well as `router.js` and `db.js` are shared (using
 [browserify](http://browserify.org/)).
 
 This example shows a *very* basic blog post viewer, Grumblr, with the posts
@@ -40,54 +40,59 @@ follow the hrefs and fetch the full page from the server each request.
 
 Here are the files involved:
 
-`routes.js`:
+`router.js`:
 ```js
-var React = require('react'),
-    db = require('./db')
-
 // This is a very basic router, shared between the server (in server.js) and
-// browser (in App.js), with each route defining the main component to be
-// rendered and a data-fetching function to fetch the data each component will need
+// browser (in App.js), with each route defining the URL to be matched and the
+// main component to be rendered
 
-// A lookup table of all the components we need to route to
-exports.components = {
-  PostList: React.createFactory(require('./PostList')),
-  PostView: React.createFactory(require('./PostView')),
+exports.routes = {
+  list: {
+    url: '/',
+    component: require('./PostList'),
+  },
+  view: {
+    url: /^\/posts\/(\d+)$/,
+    component: require('./PostView'),
+  },
 }
 
-// You would typically have more route matching capabilities in a real-world
-// app, but this is a transparent way to illustrate the concept
+// A basic routing resolution function to go through each route and see if the
+// given URL matches. If so we return the route key and data-fetching function
+// the route's component has declared (if any)
 exports.resolve = function(url) {
+  for (var key in exports.routes) {
+    var route = exports.routes[key]
+    var match = typeof route.url == 'string' ? url == route.url : url.match(route.url)
 
-  if (url == '/') {
-
-    return {
-      componentName: 'PostList',
-      fetchData: db.getAllPosts,
+    if (match) {
+      var params = Array.isArray(match) ? match.slice(1) : []
+      return {
+        key: key,
+        fetchData: function(cb) {
+          if (!route.component.fetchData) return cb()
+          return route.component.fetchData.apply(null, params.concat(cb))
+        }
+      }
     }
-
-  } else if (url.slice(0, 7) == '/posts/') {
-
-    var id = url.split('/')[2]
-
-    return {
-      componentName: 'PostView',
-      fetchData: db.getPost.bind(db, id),
-    }
-
   }
-
 }
 ```
 
 `PostList.js`:
 ```js
 var React = require('react'),
+    db = require('./db'),
     DOM = React.DOM, div = DOM.div, h1 = DOM.h1, ul = DOM.ul, li = DOM.li, a = DOM.a
 
 // This is the component we use for listing the posts on the homepage
 
 module.exports = React.createClass({
+
+  // Each component declares an asynchronous function to fetch its props.data
+  statics: {
+    fetchData: db.getAllPosts
+  },
 
   render: function() {
 
@@ -113,11 +118,17 @@ module.exports = React.createClass({
 `PostView.js`:
 ```js
 var React = require('react'),
+    db = require('./db'),
     DOM = React.DOM, div = DOM.div, h1 = DOM.h1, p = DOM.p, a = DOM.a
 
 // This is the component we use for viewing an individual post
 
 module.exports = React.createClass({
+
+  // Will be called with the params from the route URL (the post ID)
+  statics: {
+    fetchData: db.getPost
+  },
 
   render: function() {
     var post = this.props.data
@@ -138,7 +149,7 @@ module.exports = React.createClass({
 `App.js`:
 ```js
 var React = require('react'),
-    routes = require('./routes')
+    router = require('./router')
 
 // This is the top-level component responsible for rendering the correct
 // component (PostList/PostView) for the given route as well as handling any
@@ -149,7 +160,7 @@ module.exports = React.createClass({
   // The props will be server-side rendered and passed in, so they'll be used
   // for the initial page load and render
   getInitialState: function() {
-    return {componentName: this.props.componentName, data: this.props.data}
+    return this.props
   },
 
   // When the component has been created in the browser, wire up
@@ -170,23 +181,23 @@ module.exports = React.createClass({
   // route and call its data-fetching function, just as we do on the server
   // whenever a request comes in
   updateUrl: function() {
-    var route = routes.resolve(document.location.pathname)
+    var route = router.resolve(document.location.pathname)
     if (!route) return window.alert('Not Found')
 
     route.fetchData(function(err, data) {
       if (err) return window.alert(err)
 
       // This will trigger a re-render with (potentially) a new component and data
-      this.setState({componentName: route.componentName, data: data})
+      this.setState({routeKey: route.key, data: data})
 
     }.bind(this))
   },
 
-  // We look up the current route component via its name, and then render it
+  // We look up the current route via its key, and then render its component
   // passing in the data we've fetched, and the click handler for routing
   render: function() {
-    var component = routes.components[this.state.componentName]
-    return component({data: this.state.data, onClick: this.handleClick})
+    return React.createElement(router.routes[this.state.routeKey].component,
+      {data: this.state.data, onClick: this.handleClick})
   },
 
 })
@@ -212,9 +223,9 @@ var http = require('http'),
     literalify = require('literalify'),
     React = require('react'),
     AWS = require('aws-sdk'),
-    // Our routes, DB and React components are all shared by server and browser
+    // Our router, DB and React components are all shared by server and browser
     // thanks to browserify
-    routes = require('./routes'),
+    router = require('./router'),
     db = require('./db'),
     App = React.createFactory(require('./App')),
     DOM = React.DOM, body = DOM.body, div = DOM.div, script = DOM.script
@@ -225,7 +236,7 @@ var http = require('http'),
 var server = http.createServer(function(req, res) {
 
   // See if we have any component routes matching the requested URL
-  var route = routes.resolve(req.url)
+  var route = router.resolve(req.url)
 
   if (route) {
 
@@ -241,10 +252,10 @@ var server = http.createServer(function(req, res) {
       }
 
       // Define the props for the top level React component – here we have the
-      // name of the component we want to display for this route, as well as
-      // any data we've fetched
+      // key to lookup the component we want to display for this route, as well
+      // as any data we've fetched
       var props = {
-        componentName: route.componentName,
+        routeKey: route.key,
         data: data,
       }
 
@@ -311,7 +322,7 @@ var server = http.createServer(function(req, res) {
 
 })
 
-// We start the http server on after we check if the DB has been setup correctly
+// We start the http server after we check if the DB has been setup correctly
 ensureTableExists(function(err) {
   if (err) throw err
   server.listen(3000, function(err) {
@@ -330,7 +341,67 @@ function safeStringify(obj) {
 // A bootstrapping function to create and populate our DB table if it doesn't
 // exist (and start the mock DB if running locally)
 function ensureTableExists(cb) {
-  // Excluded for brevity...
+
+  var posts = [{
+    id: {S: '123'},
+    date: {S: '2015-01-01'},
+    title: {S: 'That\'s not a knife'},
+    body: {S: 'This is a knife'},
+  }, {
+    id: {S: '345'},
+    date: {S: '2015-01-02'},
+    title: {S: 'A dingo stole my baby\'s...'},
+    body: {S: '... heart. She\'s really in love with it :-('},
+  }]
+
+  if (db.endpoint.hostname == 'localhost') {
+    console.log('Starting local dynalite server...')
+
+    require('dynalite')({path: './grumblr'}).listen(db.endpoint.port, describeTable)
+  } else {
+    describeTable()
+  }
+
+  function describeTable(err) {
+    if (err) return cb(err)
+
+    console.log('Checking DB for table...')
+
+    db.describeTable({TableName: 'grumblr'}, createTable)
+  }
+
+  function createTable(err) {
+    if (!err) return cb()
+
+    if (err.code != 'ResourceNotFoundException') return cb(err)
+
+    console.log('Creating DB table (may take a while)...')
+
+    db.createTable({
+      TableName: 'grumblr',
+      KeySchema: [{AttributeName: 'id', KeyType: 'HASH'}],
+      AttributeDefinitions: [{AttributeName: 'id', AttributeType: 'S'}],
+      ProvisionedThroughput: {ReadCapacityUnits: 1, WriteCapacityUnits: 1},
+    }, waitForTable)
+  }
+
+  function waitForTable(err) {
+    if (err) return cb(err)
+
+    var waiter = new AWS.ResourceWaiter(db, 'tableExists')
+    waiter.config.interval = 1
+    waiter.wait({TableName: 'grumblr'}, writePosts)
+  }
+
+  function writePosts(err) {
+    if (err) return cb(err)
+
+    db.batchWriteItem({
+      RequestItems: {
+        grumblr: posts.map(function(item) { return {PutRequest: {Item: item}} })
+      }
+    }, cb)
+  }
 }
 ```
 

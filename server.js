@@ -3,9 +3,9 @@ var http = require('http'),
     literalify = require('literalify'),
     React = require('react'),
     AWS = require('aws-sdk'),
-    // Our routes, DB and React components are all shared by server and browser
+    // Our router, DB and React components are all shared by server and browser
     // thanks to browserify
-    routes = require('./routes'),
+    router = require('./router'),
     db = require('./db'),
     App = React.createFactory(require('./App')),
     DOM = React.DOM, body = DOM.body, div = DOM.div, script = DOM.script
@@ -16,7 +16,7 @@ var http = require('http'),
 var server = http.createServer(function(req, res) {
 
   // See if we have any component routes matching the requested URL
-  var route = routes.resolve(req.url)
+  var route = router.resolve(req.url)
 
   if (route) {
 
@@ -32,10 +32,10 @@ var server = http.createServer(function(req, res) {
       }
 
       // Define the props for the top level React component – here we have the
-      // name of the component we want to display for this route, as well as
-      // any data we've fetched
+      // key to lookup the component we want to display for this route, as well
+      // as any data we've fetched
       var props = {
-        componentName: route.componentName,
+        routeKey: route.key,
         data: data,
       }
 
@@ -102,7 +102,7 @@ var server = http.createServer(function(req, res) {
 
 })
 
-// We start the http server on after we check if the DB has been setup correctly
+// We start the http server after we check if the DB has been setup correctly
 ensureTableExists(function(err) {
   if (err) throw err
   server.listen(3000, function(err) {

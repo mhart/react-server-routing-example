@@ -1,5 +1,5 @@
 var React = require('react'),
-    routes = require('./routes')
+    router = require('./router')
 
 // This is the top-level component responsible for rendering the correct
 // component (PostList/PostView) for the given route as well as handling any
@@ -10,7 +10,7 @@ module.exports = React.createClass({
   // The props will be server-side rendered and passed in, so they'll be used
   // for the initial page load and render
   getInitialState: function() {
-    return {componentName: this.props.componentName, data: this.props.data}
+    return this.props
   },
 
   // When the component has been created in the browser, wire up
@@ -31,23 +31,23 @@ module.exports = React.createClass({
   // route and call its data-fetching function, just as we do on the server
   // whenever a request comes in
   updateUrl: function() {
-    var route = routes.resolve(document.location.pathname)
+    var route = router.resolve(document.location.pathname)
     if (!route) return window.alert('Not Found')
 
     route.fetchData(function(err, data) {
       if (err) return window.alert(err)
 
       // This will trigger a re-render with (potentially) a new component and data
-      this.setState({componentName: route.componentName, data: data})
+      this.setState({routeKey: route.key, data: data})
 
     }.bind(this))
   },
 
-  // We look up the current route component via its name, and then render it
+  // We look up the current route via its key, and then render its component
   // passing in the data we've fetched, and the click handler for routing
   render: function() {
-    var component = routes.components[this.state.componentName]
-    return component({data: this.state.data, onClick: this.handleClick})
+    return React.createElement(router.routes[this.state.routeKey].component,
+      {data: this.state.data, onClick: this.handleClick})
   },
 
 })
