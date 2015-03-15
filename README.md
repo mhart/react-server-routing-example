@@ -341,67 +341,7 @@ function safeStringify(obj) {
 // A bootstrapping function to create and populate our DB table if it doesn't
 // exist (and start the mock DB if running locally)
 function ensureTableExists(cb) {
-
-  var posts = [{
-    id: {S: '123'},
-    date: {S: '2015-01-01'},
-    title: {S: 'That\'s not a knife'},
-    body: {S: 'This is a knife'},
-  }, {
-    id: {S: '345'},
-    date: {S: '2015-01-02'},
-    title: {S: 'A dingo stole my baby\'s...'},
-    body: {S: '... heart. She\'s really in love with it :-('},
-  }]
-
-  if (db.endpoint.hostname == 'localhost') {
-    console.log('Starting local dynalite server...')
-
-    require('dynalite')({path: './grumblr'}).listen(db.endpoint.port, describeTable)
-  } else {
-    describeTable()
-  }
-
-  function describeTable(err) {
-    if (err) return cb(err)
-
-    console.log('Checking DB for table...')
-
-    db.describeTable({TableName: 'grumblr'}, createTable)
-  }
-
-  function createTable(err) {
-    if (!err) return cb()
-
-    if (err.code != 'ResourceNotFoundException') return cb(err)
-
-    console.log('Creating DB table (may take a while)...')
-
-    db.createTable({
-      TableName: 'grumblr',
-      KeySchema: [{AttributeName: 'id', KeyType: 'HASH'}],
-      AttributeDefinitions: [{AttributeName: 'id', AttributeType: 'S'}],
-      ProvisionedThroughput: {ReadCapacityUnits: 1, WriteCapacityUnits: 1},
-    }, waitForTable)
-  }
-
-  function waitForTable(err) {
-    if (err) return cb(err)
-
-    var waiter = new AWS.ResourceWaiter(db, 'tableExists')
-    waiter.config.interval = 1
-    waiter.wait({TableName: 'grumblr'}, writePosts)
-  }
-
-  function writePosts(err) {
-    if (err) return cb(err)
-
-    db.batchWriteItem({
-      RequestItems: {
-        grumblr: posts.map(function(item) { return {PutRequest: {Item: item}} })
-      }
-    }, cb)
-  }
+  // Excluded for brevity...
 }
 ```
 
