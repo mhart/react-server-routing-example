@@ -1,6 +1,6 @@
 {
   "name": "react-server-routing-example",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "An example using shared client/server code for routing and data fetching in React with AWS",
   "main": "server.js",
   "repository": "mhart/react-server-routing-example",
