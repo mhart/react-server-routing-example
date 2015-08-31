@@ -7,7 +7,7 @@ routing and data fetching with [React](http://facebook.github.io/react/) and
 search-engine-friendly progressively-enhanced pages.
 
 Also known as isomorphic, this approach shares as much browser and server code
-as possible and allowing single-page apps to also render on the server. All
+as possible and allows single-page apps to also render on the server. All
 React components, as well as `router.js` and `db.js` are shared (using
 [browserify](http://browserify.org/)) and data fetching needs are declared
 statically on each component.
