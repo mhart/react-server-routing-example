@@ -1,16 +1,16 @@
 react-server-routing-example
 ----------------------------
 
-A simple (no compile) example of how to do shared server/browser rendering,
+A simple (no compile) example of how to do universal server/browser rendering,
 routing and data fetching with [React](http://facebook.github.io/react/) and
 [AWS DynamoDB](http://aws.amazon.com/dynamodb/) for fast page loads, and
 search-engine-friendly progressively-enhanced pages.
 
-Some call this isomorphic but I'd prefer to just call it "shared", because
-really that's all it is – sharing as much browser and server code as possible
-and allowing single-page apps to also render on the server. All React
-components, as well as `router.js` and `db.js` are shared (using
-[browserify](http://browserify.org/)).
+Also known as isomorphic, this approach shares as much browser and server code
+as possible and allowing single-page apps to also render on the server. All
+React components, as well as `router.js` and `db.js` are shared (using
+[browserify](http://browserify.org/)) and data fetching needs are declared
+statically on each component.
 
 This example shows a *very* basic blog post viewer, Grumblr, with the posts
 stored in and fetched from DynamoDB whenever the route changes.
