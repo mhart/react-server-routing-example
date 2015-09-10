@@ -1,4 +1,5 @@
 var React = require('react'),
+    ReactDOM = require('react-dom'),
     App = React.createFactory(require('./App'))
 
 // This script will run in the browser and will render our component using the
@@ -6,4 +7,4 @@ var React = require('react'),
 // If these props match what is used in the server render, React will see that
 // it doesn't need to generate any DOM and the page will load faster
 
-React.render(App(window.APP_PROPS), document.getElementById('content'))
+ReactDOM.render(App(window.APP_PROPS), document.getElementById('content'))
