@@ -18,8 +18,8 @@
     "aws-sdk": "^2.2.8",
     "browserify": "^11.2.0",
     "literalify": "^0.4.0",
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2"
   },
   "devDependencies": {
     "dynalite": "^0.16.0"
