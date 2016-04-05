@@ -61,9 +61,9 @@ var server = http.createServer(function(req, res) {
 
         // We'll load React and AWS from a CDN - you don't have to do this,
         // you can bundle them up or serve them locally if you like
-        script({src: '//fb.me/react-0.14.7.min.js'}),
-        script({src: '//fb.me/react-dom-0.14.7.min.js'}),
-        script({src: '//sdk.amazonaws.com/js/aws-sdk-2.2.33.min.js'}),
+        script({src: '//fb.me/react-0.14.8.min.js'}),
+        script({src: '//fb.me/react-dom-0.14.8.min.js'}),
+        script({src: '//sdk.amazonaws.com/js/aws-sdk-2.3.0.min.js'}),
 
         // Then the browser will fetch and run the browserified bundle consisting
         // of browser.js and all its dependencies.
