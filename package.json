@@ -15,11 +15,11 @@
   "author": "Michael Hart <michael.hart.au@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.3.0",
+    "aws-sdk": "^2.3.2",
     "browserify": "^13.0.0",
     "literalify": "^0.4.0",
-    "react": "^0.14.8",
-    "react-dom": "^0.14.8"
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1"
   },
   "devDependencies": {
     "dynalite": "^0.17.4"
