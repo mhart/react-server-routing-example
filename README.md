@@ -282,9 +282,9 @@ var server = http.createServer(function(req, res) {
 
         // We'll load React and AWS from a CDN - you don't have to do this,
         // you can bundle them up or serve them locally if you like
-        script({src: '//cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react.min.js'}),
-        script({src: '//cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-dom.min.js'}),
-        script({src: '//sdk.amazonaws.com/js/aws-sdk-2.3.2.min.js'}),
+        script({src: '//cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react.min.js'}),
+        script({src: '//cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react-dom.min.js'}),
+        script({src: '//sdk.amazonaws.com/js/aws-sdk-2.4.2.min.js'}),
 
         // Then the browser will fetch and run the browserified bundle consisting
         // of browser.js and all its dependencies.
