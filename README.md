@@ -242,7 +242,7 @@ var server = http.createServer(function(req, res) {
 
   if (route) {
 
-    res.setHeader('Content-Type', 'text/html')
+    res.setHeader('Content-Type', 'text/html; charset=utf8')
 
     // We have a matching route, so call its data-fetching function to get the
     // props/data we'll need to pass to the top-level component
@@ -338,7 +338,11 @@ ensureTableExists(function(err) {
 
 // A utility function to safely escape JSON for embedding in a <script> tag
 function safeStringify(obj) {
-  return JSON.stringify(obj).replace(/<\/(script)/ig, '<\\/$1').replace(/<!--/g, '<\\!--')
+  return JSON.stringify(obj)
+    .replace(/<\/(script)/ig, '<\\/$1')
+    .replace(/<!--/g, '<\\!--')
+    .replace(/\u2028/g, '\\u2028') // Only necessary if interpreting as JS, which we do
+    .replace(/\u2029/g, '\\u2029') // Ditto
 }
 
 
