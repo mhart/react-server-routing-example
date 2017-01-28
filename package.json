@@ -15,8 +15,8 @@
   "author": "Michael Hart <michael.hart.au@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.4.11",
     "browserify": "^13.1.0",
+    "aws-sdk": "^2.9.0",
     "literalify": "^0.4.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
