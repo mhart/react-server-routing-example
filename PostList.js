@@ -1,14 +1,15 @@
-var React = require('react'),
-    db = require('./db'),
-    DOM = React.DOM, div = DOM.div, h1 = DOM.h1, ul = DOM.ul, li = DOM.li, a = DOM.a
+var createReactClass = require('create-react-class')
+var DOM = require('react-dom-factories')
+var db = require('./db')
+var div = DOM.div, h1 = DOM.h1, ul = DOM.ul, li = DOM.li, a = DOM.a
 
 // This is the component we use for listing the posts on the homepage
 
-module.exports = React.createClass({
+module.exports = createReactClass({
 
   // Each component declares an asynchronous function to fetch its props.data
   statics: {
-    fetchData: db.getAllPosts
+    fetchData: db.getAllPosts,
   },
 
   render: function() {
@@ -27,6 +28,6 @@ module.exports = React.createClass({
 
       }.bind(this))})
     )
-  }
+  },
 
 })

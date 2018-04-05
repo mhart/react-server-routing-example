@@ -1,6 +1,6 @@
-var React = require('react'),
-    ReactDOM = require('react-dom'),
-    App = React.createFactory(require('./App'))
+var React = require('react')
+var ReactDOM = require('react-dom')
+var App = React.createFactory(require('./App'))
 
 // This script will run in the browser and will render our component using the
 // value from APP_PROPS that we generate inline in the page's html on the server.

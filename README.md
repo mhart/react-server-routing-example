@@ -63,7 +63,7 @@ exports.routes = {
 exports.resolve = function(url) {
   for (var key in exports.routes) {
     var route = exports.routes[key]
-    var match = typeof route.url == 'string' ? url == route.url : url.match(route.url)
+    var match = typeof route.url === 'string' ? url === route.url : url.match(route.url)
 
     if (match) {
       var params = Array.isArray(match) ? match.slice(1) : []
@@ -72,7 +72,7 @@ exports.resolve = function(url) {
         fetchData: function(cb) {
           if (!route.component.fetchData) return cb()
           return route.component.fetchData.apply(null, params.concat(cb))
-        }
+        },
       }
     }
   }
@@ -81,17 +81,18 @@ exports.resolve = function(url) {
 
 `PostList.js`:
 ```js
-var React = require('react'),
-    db = require('./db'),
-    DOM = React.DOM, div = DOM.div, h1 = DOM.h1, ul = DOM.ul, li = DOM.li, a = DOM.a
+var createReactClass = require('create-react-class')
+var DOM = require('react-dom-factories')
+var db = require('./db')
+var div = DOM.div, h1 = DOM.h1, ul = DOM.ul, li = DOM.li, a = DOM.a
 
 // This is the component we use for listing the posts on the homepage
 
-module.exports = React.createClass({
+module.exports = createReactClass({
 
   // Each component declares an asynchronous function to fetch its props.data
   statics: {
-    fetchData: db.getAllPosts
+    fetchData: db.getAllPosts,
   },
 
   render: function() {
@@ -110,24 +111,25 @@ module.exports = React.createClass({
 
       }.bind(this))})
     )
-  }
+  },
 
 })
 ```
 
 `PostView.js`:
 ```js
-var React = require('react'),
-    db = require('./db'),
-    DOM = React.DOM, div = DOM.div, h1 = DOM.h1, p = DOM.p, a = DOM.a
+var createReactClass = require('create-react-class')
+var DOM = require('react-dom-factories')
+var db = require('./db')
+var div = DOM.div, h1 = DOM.h1, p = DOM.p, a = DOM.a
 
 // This is the component we use for viewing an individual post
 
-module.exports = React.createClass({
+module.exports = createReactClass({
 
   // Will be called with the params from the route URL (the post ID)
   statics: {
-    fetchData: db.getPost
+    fetchData: db.getPost,
   },
 
   render: function() {
@@ -141,21 +143,22 @@ module.exports = React.createClass({
 
       p(null, a({href: '/', onClick: this.props.onClick}, '< Grumblr Home'))
     )
-  }
+  },
 
 })
 ```
 
 `App.js`:
 ```js
-var React = require('react'),
-    router = require('./router')
+var React = require('react')
+var createReactClass = require('create-react-class')
+var router = require('./router')
 
 // This is the top-level component responsible for rendering the correct
 // component (PostList/PostView) for the given route as well as handling any
 // client-side routing needs (via window.history and window.onpopstate)
 
-module.exports = React.createClass({
+module.exports = createReactClass({
 
   // The props will be server-side rendered and passed in, so they'll be used
   // for the initial page load and render
@@ -205,9 +208,9 @@ module.exports = React.createClass({
 
 `browser.js`:
 ```js
-var React = require('react'),
-    ReactDOM = require('react-dom'),
-    App = React.createFactory(require('./App'))
+var React = require('react')
+var ReactDOM = require('react-dom')
+var App = React.createFactory(require('./App'))
 
 // This script will run in the browser and will render our component using the
 // value from APP_PROPS that we generate inline in the page's html on the server.
@@ -219,19 +222,22 @@ ReactDOM.render(App(window.APP_PROPS), document.getElementById('content'))
 
 `server.js`:
 ```js
-var http = require('http'),
-    browserify = require('browserify'),
-    literalify = require('literalify'),
-    React = require('react'),
-    ReactDOMServer = require('react-dom/server'),
-    AWS = require('aws-sdk'),
-    // Our router, DB and React components are all shared by server and browser
-    // thanks to browserify
-    router = require('./router'),
-    db = require('./db'),
-    App = React.createFactory(require('./App')),
-    DOM = React.DOM, body = DOM.body, div = DOM.div, script = DOM.script
+var http = require('http')
+var browserify = require('browserify')
+var literalify = require('literalify')
+var React = require('react')
+var ReactDOMServer = require('react-dom/server')
+var DOM = require('react-dom-factories')
+var AWS = require('aws-sdk')
+// Our router, DB and React components are all shared by server and browser
+// thanks to browserify
+var router = require('./router')
+var db = require('./db')
+var body = DOM.body, div = DOM.div, script = DOM.script
+var App = React.createFactory(require('./App'))
 
+// A variable to store our JS, which we create when /bundle.js is first requested
+var BUNDLE = null
 
 // Just create a plain old HTTP server that responds to our route endpoints
 // (and '/bundle.js')
@@ -249,7 +255,7 @@ var server = http.createServer(function(req, res) {
     route.fetchData(function(err, data) {
 
       if (err) {
-        res.statusCode = err.message == 'NotFound' ? 404 : 500
+        res.statusCode = err.message === 'NotFound' ? 404 : 500
         return res.end(err.toString())
       }
 
@@ -269,22 +275,25 @@ var server = http.createServer(function(req, res) {
         // The actual server-side rendering of our component occurs here,
         // passing in `props`. This div is the same one that the client will
         // "render" into on the browser from browser.js
-        div({id: 'content', dangerouslySetInnerHTML: {__html:
-          ReactDOMServer.renderToString(App(props))
-        }}),
+        div({
+          id: 'content',
+          dangerouslySetInnerHTML: {__html: ReactDOMServer.renderToString(App(props))},
+        }),
 
         // The props should match on the client and server, so we stringify them
         // on the page to be available for access by the code run in browser.js
         // You could use any var name here as long as it's unique
-        script({dangerouslySetInnerHTML: {__html:
-          'var APP_PROPS = ' + safeStringify(props) + ';'
-        }}),
+        script({
+          dangerouslySetInnerHTML: {__html: 'var APP_PROPS = ' + safeStringify(props) + ';'},
+        }),
 
         // We'll load React and AWS from a CDN - you don't have to do this,
         // you can bundle them up or serve them locally if you like
-        script({src: '//cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js'}),
-        script({src: '//cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.min.js'}),
-        script({src: '//sdk.amazonaws.com/js/aws-sdk-2.9.0.min.js'}),
+        script({src: 'https://cdn.jsdelivr.net/npm/react@16.3.1/umd/react.production.min.js'}),
+        script({src: 'https://cdn.jsdelivr.net/npm/react-dom@16.3.1/umd/react-dom.production.min.js'}),
+        script({src: 'https://cdn.jsdelivr.net/npm/react-dom-factories@1.0.2/index.min.js'}),
+        script({src: 'https://cdn.jsdelivr.net/npm/create-react-class@15.6.3/create-react-class.min.js'}),
+        script({src: 'https://sdk.amazonaws.com/js/aws-sdk-2.221.1.min.js'}),
 
         // Then the browser will fetch and run the browserified bundle consisting
         // of browser.js and all its dependencies.
@@ -297,14 +306,16 @@ var server = http.createServer(function(req, res) {
     })
 
   // This endpoint is hit when the browser is requesting bundle.js from the page above
-  } else if (req.url == '/bundle.js') {
+  } else if (req.url === '/bundle.js') {
 
     res.setHeader('Content-Type', 'text/javascript')
 
+    // If we've already bundled, send the cached result
+    if (BUNDLE != null) {
+      return res.end(BUNDLE)
+    }
+
     // Here we invoke browserify to package up browser.js and everything it requires.
-    // DON'T do it on the fly like this in production - it's very costly -
-    // either compile the bundle ahead of time, or use some smarter middleware
-    // (eg browserify-middleware).
     // We also use literalify to transform our `require` statements for React
     // and AWS so that it uses the global variable (from the CDN JS file)
     // instead of bundling it up with everything else
@@ -313,10 +324,16 @@ var server = http.createServer(function(req, res) {
       .transform(literalify.configure({
         'react': 'window.React',
         'react-dom': 'window.ReactDOM',
+        'react-dom-factories': 'window.ReactDOMFactories',
+        'create-react-class': 'window.createReactClass',
         'aws-sdk': 'window.AWS',
       }))
-      .bundle()
-      .pipe(res)
+      .bundle(function(err, buf) {
+        // Now we can cache the result and serve this up each time
+        BUNDLE = buf
+        res.statusCode = err ? 500 : 200
+        res.end(err ? err.message : BUNDLE)
+      })
 
   // Return 404 for all other requests
   } else {

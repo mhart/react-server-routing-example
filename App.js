@@ -1,11 +1,12 @@
-var React = require('react'),
-    router = require('./router')
+var React = require('react')
+var createReactClass = require('create-react-class')
+var router = require('./router')
 
 // This is the top-level component responsible for rendering the correct
 // component (PostList/PostView) for the given route as well as handling any
 // client-side routing needs (via window.history and window.onpopstate)
 
-module.exports = React.createClass({
+module.exports = createReactClass({
 
   // The props will be server-side rendered and passed in, so they'll be used
   // for the initial page load and render
