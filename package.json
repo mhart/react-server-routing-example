@@ -15,12 +15,12 @@
   "author": "Michael Hart <michael.hart.au@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.285.1",
+    "aws-sdk": "^2.315.0",
     "browserify": "^16.2.2",
     "create-react-class": "^15.6.3",
     "literalify": "^0.4.0",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "react": "^16.5.1",
+    "react-dom": "^16.5.1",
     "react-dom-factories": "^1.0.2"
   },
   "devDependencies": {
