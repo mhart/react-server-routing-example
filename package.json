@@ -15,7 +15,7 @@
   "author": "Michael Hart <michael.hart.au@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.653.0",
+    "aws-sdk": "^2.725.0",
     "browserify": "^16.5.1",
     "create-react-class": "^15.6.3",
     "literalify": "^0.4.0",
@@ -24,6 +24,6 @@
     "react-dom-factories": "^1.0.2"
   },
   "devDependencies": {
-    "dynalite": "^3.1.6"
+    "dynalite": "^3.2.0"
   }
 }
