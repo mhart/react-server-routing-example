@@ -4,3 +4,4 @@ coverage*
 .tern-port
 v8.log
 grumblr
+package-lock.json
